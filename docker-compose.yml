@@ -17,7 +17,8 @@ services:
       dockerfile: Dockerfile.backend
     environment:
       - MONGO_URI=mongodb+srv://yerkow:1234@cluster0.8cprx.mongodb.net/qonaqui?retryWrites=true&w=majority
-      - JWT_SECRET=${JWT_SECRET:-super-secret-key}
+      - JWT_SECRET=qonaqui-super-secret-key-for-jwt-tokens-must-be-at-least-256-bits-long-enough
+      - JWT_EXPIRATION=3600000
       - SERVER_PORT=4000
     ports:
       - "4000:4000"
