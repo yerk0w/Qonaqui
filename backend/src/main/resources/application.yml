@@ -1,0 +1,18 @@
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb+srv://yerkow:1234@cluster0.8cprx.mongodb.net/qonaqui?retryWrites=true&w=majority}
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:4000}
+
+jwt:
+  secret: ${JWT_SECRET:change-me}
+  expiration: ${JWT_EXPIRATION:3600000}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.qonaqui: DEBUG

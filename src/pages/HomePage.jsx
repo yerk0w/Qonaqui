@@ -6,9 +6,24 @@ import Footer from '../components/Footer';
 import AnimatedPage from '../components/AnimatedPage';
 
 const featuredRooms = [
-  { name: 'Королевский Люкс', description: 'Просторный номер с панорамным видом на город.', image: 'https://images.unsplash.com/photo-161189244_0504-42a792e24d32?q=80&w=2070&auto=format&fit=crop' },
-  { name: 'Семейный Делюкс', description: 'Идеальный выбор для семейного отдыха, с двумя комнатами.', image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=2070&auto=format&fit=crop' },
-  { name: 'Стандарт Комфорт', description: 'Уютный и современный номер для работы и отдыха.', image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop' }
+  {
+    name: "Королевский Люкс",
+    description: "Просторный номер с панорамным видом на город.",
+    image:
+      "https://lottehotelmoscow.ru/upload/resize_cache/iblock/b06/768_480_2619711fa078991f0a23d032687646b21/0z799562mcg44qby9tue39tjc80eugod.jpg",
+  },
+  {
+    name: "Семейный Делюкс",
+    description: "Идеальный выбор для семейного отдыха, с двумя комнатами.",
+    image:
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=2070&auto=format&fit=crop",
+  },
+  {
+    name: "Стандарт Комфорт",
+    description: "Уютный и современный номер для работы и отдыха.",
+    image:
+      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop",
+  },
 ];
 
 const HomePage = () => {

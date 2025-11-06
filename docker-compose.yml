@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - qonaqui
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      - MONGO_URI=mongodb+srv://yerkow:1234@cluster0.8cprx.mongodb.net/qonaqui?retryWrites=true&w=majority
+      - JWT_SECRET=${JWT_SECRET:-super-secret-key}
+      - SERVER_PORT=4000
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongo
+    networks:
+      - qonaqui
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - qonaqui
+
+networks:
+  qonaqui:
+    driver: bridge
+
+volumes:
+  mongo-data:
