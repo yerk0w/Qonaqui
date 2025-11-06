@@ -35,7 +35,7 @@ const ProfilePage = () => {
   return (
     <AnimatedPage>
       <div className="bg-white py-20">
-        <div className="container mx-auto px-6 max-w-2xl">
+        <div className="container mx-auto">
           <div className="bg-white p-8 rounded-xl shadow-2xl">
             <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">{t('header.profile')}</h1>
             

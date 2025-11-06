@@ -45,37 +45,6 @@ const HomePage = () => {
 
             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-2xl">{t('home.title')}</h1>
             <p className="text-lg md:text-xl mb-8 max-w-3xl drop-shadow-lg">{t('home.subtitle')}</p>
-            
-            <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-4 text-gray-700 w-full max-w-4xl">
-              <div className="flex-1 w-full flex items-center gap-3 border-b md:border-b-0 md:border-r p-2">
-                <Calendar className="text-gray-400" />
-                <div>
-                  <label className="text-xs font-semibold text-gray-500">Прибытие</label>
-                  <input type="text" placeholder="18 октября 2025" className="w-full focus:outline-none bg-transparent text-lg" />
-                </div>
-              </div>
-              <div className="flex-1 w-full flex items-center gap-3 border-b md:border-b-0 md:border-r p-2">
-                <Calendar className="text-gray-400" />
-                <div>
-                  <label className="text-xs font-semibold text-gray-500">Выезд</label>
-                  <input type="text" placeholder="20 октября 2025" className="w-full focus:outline-none bg-transparent text-lg" />
-                </div>
-              </div>
-              <div className="flex-1 w-full flex items-center gap-3 p-2">
-                <User className="text-gray-400" />
-                <div>
-                  <label className="text-xs font-semibold text-gray-500">Гости</label>
-                  <select className="w-full focus:outline-none bg-transparent text-lg appearance-none">
-                    <option>2 взрослых</option>
-                    <option>1 взрослый</option>
-                  </select>
-                </div>
-              </div>
-              <Link to="/search" className="w-full md:w-auto bg-blue-600 text-white px-6 py-4 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl">
-                <Search size={24} />
-                <span className="font-bold text-lg">{t('home.search')}</span>
-              </Link>
-            </div>
           </div>
           
           <button 

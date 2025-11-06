@@ -25,6 +25,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminBookings from './pages/admin/AdminBookings.jsx';
 import AdminServices from './pages/admin/AdminServices.jsx';
+import AdminRooms from "./pages/admin/AdminRooms.jsx";
+import AdminServicesManagement from "./pages/admin/AdminServicesManagement.jsx";
 import AdminFinances from './pages/admin/AdminFinances.jsx';
 import AdminReviews from './pages/admin/AdminReviews.jsx';
 import ReceptionLayout from './pages/receptionist/ReceptionLayout.jsx';
@@ -36,12 +38,12 @@ function App() {
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
-      {!location.pathname.startsWith('/admin') && !location.pathname.startsWith('/receptionist') && <Header />}
-      
+      {!location.pathname.startsWith("/admin") &&
+        !location.pathname.startsWith("/receptionist") && <Header />}
+
       <main>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            
             <Route path="/" element={<HomePage />} />
             <Route path="/search" element={<ResultsPage />} />
             <Route path="/rooms" element={<RoomsPage />} />
@@ -58,25 +60,34 @@ function App() {
             <Route path="/profile/loyalty" element={<MyLoyalty />} />
             <Route path="/profile/reviews" element={<MyReviews />} />
             <Route path="/booking/:roomId" element={<BookingProcess />} />
-            
-            <Route path="/admin" element={<AdminRoute allowedRoles={['ADMIN']} />}>
+
+            <Route
+              path="/admin"
+              element={<AdminRoute allowedRoles={["ADMIN"]} />}
+            >
               <Route element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
+                <Route path="rooms" element={<AdminRooms />} />
                 <Route path="bookings" element={<AdminBookings />} />
-                <Route path="services" element={<AdminServices />} />
+                <Route
+                  path="services"
+                  element={<AdminServicesManagement />}
+                />{" "}
                 <Route path="finances" element={<AdminFinances />} />
                 <Route path="reviews" element={<AdminReviews />} />
               </Route>
             </Route>
 
-            <Route path="/receptionist" element={<AdminRoute allowedRoles={['RECEPTIONIST', 'ADMIN']} />}>
+            <Route
+              path="/receptionist"
+              element={<AdminRoute allowedRoles={["RECEPTIONIST", "ADMIN"]} />}
+            >
               <Route element={<ReceptionLayout />}>
                 <Route index element={<ReceptionDashboard />} />
                 <Route path="bookings" element={<ReceptionBookings />} />
               </Route>
             </Route>
-
           </Routes>
         </AnimatePresence>
       </main>
