@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Hotel, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, Briefcase, Coins, MessageSquare, LogOut } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -24,9 +24,21 @@ const AdminSidebar = () => {
           <Users size={20} />
           <span>Пользователи</span>
         </Link>
-        <Link to="/admin/hotels" className={linkClass('/admin/hotels')}>
-          <Hotel size={20} />
-          <span>Отели</span>
+        <Link to="/admin/bookings" className={linkClass('/admin/bookings')}>
+          <ClipboardList size={20} />
+          <span>Бронирования</span>
+        </Link>
+        <Link to="/admin/services" className={linkClass('/admin/services')}>
+          <Briefcase size={20} />
+          <span>Услуги</span>
+        </Link>
+        <Link to="/admin/finances" className={linkClass('/admin/finances')}>
+          <Coins size={20} />
+          <span>Финансы</span>
+        </Link>
+        <Link to="/admin/reviews" className={linkClass('/admin/reviews')}>
+          <MessageSquare size={20} />
+          <span>Отзывы</span>
         </Link>
       </nav>
       <div className="border-t border-gray-700 pt-4">

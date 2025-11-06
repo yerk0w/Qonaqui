@@ -1,27 +1,48 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { X, Star, Wifi, Wind, ParkingCircle, Droplets, UtensilsCrossed } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
+
+const amenityIcon = (amenity) => {
+  switch (amenity.toLowerCase()) {
+    case 'wi-fi':
+    case 'wifi':
+      return <Wifi size={16} />;
+    case 'кондиционер':
+    case 'air conditioning':
+      return <Wind size={16} />;
+    case 'парковка':
+    case 'parking':
+      return <ParkingCircle size={16} />;
+    case 'бассейн':
+    case 'pool':
+      return <Droplets size={16} />;
+    case 'ресторан':
+    case 'room service':
+      return <UtensilsCrossed size={16} />;
+    default:
+      return null;
+  }
+};
 
 const RoomDetailModal = ({ room, onClose }) => {
   const navigate = useNavigate();
-
-  // 
-  // ВОТ ИСПРАВЛЕНИЕ:
-  // Мы больше не используем "isLoggedIn", а напрямую проверяем наличие токена.
-  //
-  const token = localStorage.getItem('token'); 
-
+  const { isAuthenticated } = useAuth();
   if (!room) return null;
 
+  const photos = room.photos?.length ? room.photos : [room.image];
+  const rating = room.rating ?? 4.8;
+  const reviews = room.reviews ?? [];
+  const capacity = room.capacity ?? room.guests ?? 1;
+  const capacityLabel = capacity === 1 ? 'гостя' : capacity < 5 ? 'гостей' : 'гостей';
+
   const handleBookingClick = () => {
-    // Проверяем наличие токена здесь
-    if (token) {
-      alert(`Номер "${room.name}" успешно забронирован!`);
-      onClose();
-    } else {
-      // Если токена нет, перенаправляем на страницу входа
+    onClose();
+    if (!isAuthenticated) {
       navigate('/login');
+      return;
     }
+    navigate(`/booking/${room.id}`);
   };
 
   return (
@@ -39,61 +60,79 @@ const RoomDetailModal = ({ room, onClose }) => {
           exit={{ y: 50, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
-          onClick={(e) => e.stopPropagation()} 
+          onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="p-4 border-b flex justify-between items-center">
             <h2 className="text-2xl font-bold text-gray-800">{room.name}</h2>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-800"><X size={24} /></button>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+              <X size={24} />
+            </button>
           </div>
 
-          {/* Body */}
-          <div className="overflow-y-auto p-6">
-            <div className="grid grid-cols-3 gap-2 mb-6">
-              <img src={room.image} alt={room.name} className="col-span-3 h-80 w-full object-cover rounded-lg" />
+          <div className="overflow-y-auto p-6 space-y-6">
+            <div className="grid grid-cols-3 gap-2">
+              {photos.map((photo, index) => (
+                <img
+                  key={index}
+                  src={photo}
+                  alt={`${room.name} ${index + 1}`}
+                  className={`h-48 object-cover rounded-lg ${index === 0 ? 'col-span-3 md:col-span-2 h-80' : ''}`}
+                />
+              ))}
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2">
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">Описание</h3>
                 <p className="text-gray-600 leading-relaxed">{room.description}</p>
+
                 <h3 className="text-xl font-semibold mt-6 mb-2 text-gray-800">Удобства</h3>
                 <div className="flex flex-wrap gap-4 text-gray-700">
-                    {room.amenities.map(amenity => (
-                        <span key={amenity} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
-                            {amenity === 'Wi-Fi' && <Wifi size={16}/>}
-                            {amenity === 'Кондиционер' && <Wind size={16}/>}
-                            {amenity === 'Парковка' && <ParkingCircle size={16}/>}
-                            {amenity === 'Бассейн' && <Droplets size={16}/>}
-                            {amenity === 'Ресторан' && <UtensilsCrossed size={16}/>}
-                            {amenity}
-                        </span>
-                    ))}
+                  {room.amenities?.map((amenity) => (
+                    <span
+                      key={amenity}
+                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2"
+                    >
+                      {amenityIcon(amenity)}
+                      {amenity}
+                    </span>
+                  ))}
                 </div>
               </div>
+
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">Отзывы</h3>
-                 <div className="flex items-center gap-2 text-yellow-500 mb-4">
-                    <Star size={20} fill="currentColor" />
-                    <span className="font-bold text-xl text-gray-800">{room.rating}</span>
-                    <span className="text-gray-500 text-sm">/ 5.0</span>
+                <div className="flex items-center gap-2 text-yellow-500 mb-4">
+                  <Star size={20} fill="currentColor" />
+                  <span className="font-bold text-xl text-gray-800">{rating.toFixed(1)}</span>
+                  <span className="text-gray-500 text-sm">/ 5.0</span>
                 </div>
-                {room.reviews.map((review, index) => (
-                    <div key={index} className="border-t pt-2 mt-2">
-                        <p className="font-semibold text-gray-700">{review.author}</p>
-                        <p className="text-sm text-gray-500">"{review.comment}"</p>
-                    </div>
+                {reviews.length === 0 && (
+                  <p className="text-sm text-gray-500">Отзывов пока нет.</p>
+                )}
+                {reviews.map((review, index) => (
+                  <div key={index} className="border-t pt-2 mt-2">
+                    <p className="font-semibold text-gray-700">{review.author}</p>
+                    <p className="text-sm text-gray-500">"{review.comment}"</p>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Footer */}
           <div className="p-4 bg-gray-50 border-t mt-auto flex justify-between items-center">
             <div>
-              <p className="text-2xl font-bold text-blue-600">{room.price.toLocaleString()} ₸</p>
-              <p className="text-gray-500 text-sm">за ночь</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {Number(room.price ?? 0).toLocaleString()} ₸
+              </p>
+              <p className="text-gray-500 text-sm">
+                Этаж {room.floor} • до {capacity} {capacityLabel}
+              </p>
             </div>
-            <button onClick={handleBookingClick} className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-transform hover:scale-105 font-semibold text-lg">
+            <button
+              onClick={handleBookingClick}
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-transform hover:scale-105 font-semibold text-lg"
+            >
               Забронировать сейчас
             </button>
           </div>

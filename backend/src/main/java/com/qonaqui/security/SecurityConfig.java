@@ -43,14 +43,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ ДОБАВЛЕНО: Включаем CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(registry -> registry
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ ДОБАВЛЕНО: Разрешаем preflight запросы
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/reception/**").hasAnyRole("RECEPTIONIST", "ADMIN")
+                        .requestMatchers("/api/loyalty/**").authenticated()
                         .requestMatchers("/api/auth/**").authenticated()
                         .anyRequest().permitAll())
                 .authenticationProvider(authenticationProvider())
@@ -62,29 +64,18 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ ДОБАВЛЕНО: Конфигурация CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Разрешаем запросы с фронтенда
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        
-        // Разрешаем все методы
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        
-        // Разрешаем все заголовки (включая Authorization)
         configuration.setAllowedHeaders(List.of("*"));
-        
-        // Разрешаем отправку credentials (для JWT токенов)
         configuration.setAllowCredentials(true);
-        
-        // Кешируем preflight запросы на 1 час
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        
+
         return source;
     }
 

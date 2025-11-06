@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.qonaqui.dto.JwtResponse;
 import com.qonaqui.dto.LoginRequest;
+import com.qonaqui.dto.RefreshTokenRequest;
 import com.qonaqui.dto.RegisterRequest;
 import com.qonaqui.dto.UserResponse;
 import com.qonaqui.service.AuthService;
@@ -35,6 +36,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Validated @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> refresh(@Validated @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshTokens(request.refreshToken()));
     }
 
     @GetMapping("/profile")

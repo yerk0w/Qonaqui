@@ -41,9 +41,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = authHeader.substring(7);
         if (!jwtService.isTokenValid(token)) {
             log.debug("Invalid JWT token");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (!jwtService.isAccessToken(token)) {
+            log.debug("Token type is not access, skipping authentication");
             filterChain.doFilter(request, response);
             return;
         }

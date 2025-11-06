@@ -3,12 +3,18 @@ package com.qonaqui.dto;
 import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.qonaqui.model.embedded.PassportData;
+import com.qonaqui.model.enums.Role;
 
 public record UserResponse(
         @JsonProperty("_id")
         String id,
         String name,
         String email,
-        String role,
-        Instant createdAt
+        String phone,
+        Role role,
+        PassportData passportData,
+        Instant createdAt,
+        Instant updatedAt,
+        long loyaltyPoints
 ) {}

@@ -1,18 +1,29 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Mail, Lock, User, AlertCircle } from "lucide-react";
+import { Mail, Lock, User, Phone, AlertCircle } from "lucide-react";
+import { useAuth } from "../context/AuthContext.jsx";
 
-// URL нашего бэкенда (Java Spring Boot на порту 4000)
-const API_URL = "http://localhost:4000/api/auth";
+const destinationByRole = (role) => {
+  switch (role) {
+    case "ADMIN":
+      return "/admin";
+    case "RECEPTIONIST":
+      return "/receptionist";
+    default:
+      return "/profile";
+  }
+};
 
 const AuthForm = ({ isLogin, backgroundImage }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { login, register } = useAuth();
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
   });
 
@@ -29,46 +40,24 @@ const AuthForm = ({ isLogin, backgroundImage }) => {
     setIsLoading(true);
     setError(null);
 
-    const endpoint = isLogin ? "/login" : "/register";
-    const url = API_URL + endpoint;
-
-    const payload = isLogin
-      ? { email: formData.email, password: formData.password }
-      : {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        };
-
     try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const payload = isLogin
+        ? { email: formData.email, password: formData.password }
+        : {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            password: formData.password,
+          };
 
-      const data = await res.json();
+      const profile = isLogin
+        ? await login(payload)
+        : await register(payload);
 
-      if (!res.ok) {
-        throw new Error(data.message || "Что-то пошло не так");
-      }
-
-      // Сохраняем токен
-      localStorage.setItem("token", data.token);
-
-      // Перенаправляем на главную
-      navigate("/");
+      navigate(destinationByRole(profile.role));
     } catch (err) {
       console.error("Ошибка при запросе:", err);
-      if (err.message === "Failed to fetch") {
-        setError(
-          "❌ Не удается подключиться к серверу. Убедитесь, что Java бэкенд запущен на http://localhost:4000"
-        );
-      } else {
-        setError(err.message);
-      }
+      setError(err.message ?? "Не удалось выполнить запрос");
     } finally {
       setIsLoading(false);
     }
@@ -129,6 +118,21 @@ const AuthForm = ({ isLogin, backgroundImage }) => {
               required
             />
           </div>
+
+          {!isLogin && (
+            <div className="relative">
+              <Phone className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
+              <input
+                type="tel"
+                name="phone"
+                placeholder={t("auth.phone_placeholder")}
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition"
+                required
+              />
+            </div>
+          )}
 
           <div className="relative">
             <Lock className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />

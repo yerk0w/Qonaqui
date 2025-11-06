@@ -1,69 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AnimatedPage from '../components/AnimatedPage';
 import Footer from '../components/Footer';
-import { User, Mail, Calendar, LogOut, Loader2, AlertTriangle } from 'lucide-react';
-
-const API_URL = 'http://localhost:4000/api/auth/profile';
+import { User, Mail, Calendar, LogOut, Loader2, Star } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const ProfilePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      // 1. Получаем токен из localStorage
-      const token = localStorage.getItem('token');
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
-      if (!token) {
-        // Если токена нет, не тратим время и отправляем на логин
-        navigate('/login');
-        return;
-      }
-
-      try {
-        // 2. Отправляем запрос с токеном в заголовке
-        const res = await fetch(API_URL, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // <--- САМОЕ ВАЖНОЕ
-          }
-        });
-
-        if (!res.ok) {
-          // Если токен плохой (просрочен и т.д.)
-          throw new Error('Не удалось получить данные. Попробуйте войти снова.');
-        }
-
-        const data = await res.json();
-        setUserData(data);
-
-      } catch (err) {
-        setError(err.message);
-        // Если ошибка (например, токен невалидный), удаляем плохой токен
-        localStorage.removeItem('token');
-        navigate('/login'); // и отправляем на логин
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [navigate]); // navigate добавлен как зависимость
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
-
-  // 1. Состояние загрузки
-  if (loading) {
+  if (isLoading) {
     return (
       <AnimatedPage>
         <div className="flex justify-center items-center h-[calc(100vh-80px)]">
@@ -72,17 +26,9 @@ const ProfilePage = () => {
       </AnimatedPage>
     );
   }
-  
-  // 2. Состояние ошибки (хотя мы сразу редиректим, но на всякий случай)
-  if (error) {
-     return (
-      <AnimatedPage>
-        <div className="flex flex-col justify-center items-center h-[calc(100vh-80px)] text-red-500">
-          <AlertTriangle size={64} />
-          <p className="mt-4 text-xl">{error}</p>
-        </div>
-      </AnimatedPage>
-    );
+
+  if (!user) {
+    return null;
   }
 
   // 3. Успешное состояние
@@ -93,13 +39,13 @@ const ProfilePage = () => {
           <div className="bg-white p-8 rounded-xl shadow-2xl">
             <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">{t('header.profile')}</h1>
             
-            {userData && (
+            {user && (
               <div className="space-y-6">
                 <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                   <User className="text-blue-600" size={24} />
                   <div>
                     <span className="text-sm font-medium text-gray-500">Имя</span>
-                    <p className="text-lg font-semibold text-gray-900">{userData.name}</p>
+                    <p className="text-lg font-semibold text-gray-900">{user.name}</p>
                   </div>
                 </div>
                 
@@ -107,29 +53,73 @@ const ProfilePage = () => {
                   <Mail className="text-blue-600" size={24} />
                   <div>
                     <span className="text-sm font-medium text-gray-500">Email</span>
-                    <p className="text-lg font-semibold text-gray-900">{userData.email}</p>
+                    <p className="text-lg font-semibold text-gray-900">{user.email}</p>
                   </div>
                 </div>
                 
+               <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                 <Calendar className="text-blue-600" size={24} />
+                 <div>
+                   <span className="text-sm font-medium text-gray-500">Дата регистрации</span>
+                   <p className="text-lg font-semibold text-gray-900">
+                     {new Date(user.createdAt).toLocaleDateString()}
+                   </p>
+                 </div>
+               </div>
                 <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                  <Calendar className="text-blue-600" size={24} />
+                  <Star className="text-blue-600" size={24} />
                   <div>
-                    <span className="text-sm font-medium text-gray-500">Дата регистрации</span>
+                    <span className="text-sm font-medium text-gray-500">Бонусные баллы</span>
                     <p className="text-lg font-semibold text-gray-900">
-                      {new Date(userData.createdAt).toLocaleDateString()}
+                      {user.loyaltyPoints ?? 0}
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            <button
-              onClick={handleLogout}
-              className="w-full mt-10 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition font-bold text-lg flex items-center justify-center gap-2"
-            >
-              <LogOut size={20} />
-              <span>{t('header.logout')}</span>
-            </button>
+            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => navigate('/profile/bookings')}
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-bold text-lg"
+              >
+                Мои бронирования
+              </button>
+              <button
+                onClick={() => navigate('/profile/services')}
+                className="flex-1 bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition font-bold text-lg"
+              >
+                Мои услуги
+              </button>
+              <button
+                onClick={() => navigate('/profile/payments')}
+                className="flex-1 bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 transition font-bold text-lg"
+              >
+                Платежи
+              </button>
+              <button
+                onClick={() => navigate('/profile/loyalty')}
+                className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-bold text-lg"
+              >
+                Лояльность
+              </button>
+              <button
+                onClick={() => navigate('/profile/reviews')}
+                className="flex-1 bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition font-bold text-lg"
+              >
+                Отзывы
+              </button>
+              <button
+                onClick={() => {
+                  logout();
+                  navigate('/login');
+                }}
+                className="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition font-bold text-lg flex items-center justify-center gap-2"
+              >
+                <LogOut size={20} />
+                <span>{t('header.logout')}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
